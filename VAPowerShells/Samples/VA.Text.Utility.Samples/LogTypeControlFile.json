@@ -1,0 +1,34 @@
+﻿{
+	"LogTypes": [{
+		"LogType": "IIS_LOG",
+
+		"LogEntryFormat": "(?<DATE>\\d{4,4}-\\d{1,2}-\\d{1,2}) (?<TIME>\\d+:\\d+:\\d+) (?<ENTRY>.*)",
+		"LogDateFormat": "yyyy-MM-dd",
+		"LogTimeFormat": "HH:mm:ss",
+		"LogDateTimeZone": "UTC",
+
+		"UseLogFileNameForLogDate": false,
+		"LogFileNameFormat": "u_ex(?<DATE>\\d{4,4}).*\\.log",
+		"LogFileNameDateFormat": "yyMM",
+		"LogFileNameTimeFormat": "",
+		"LogFileNameDateTimeZone": "UTC",
+
+		"LogFileType": "*.log"
+	},
+    {
+		"LogType": "CBS_LOG",
+        "LogFileType": "*.log",
+
+		"LogEntryFormat": "(?<DATE>\\d{4,4}-\\d{1,2}-\\d{1,2}) (?<TIME>\\d+:\\d+:\\d+), (?<ENTRY>.*)",
+		"LogDateFormat": "yyyy-MM-dd",
+		"LogTimeFormat": "HH:mm:ss",
+		"LogDateTimeZone": "IST",
+		
+		"LogFileNameFormat": ".*\\.log",
+		"LogFileNameDateFormat": "",
+		"LogFileNameTimeFormat": "",
+		"LogFileNameDateTimeZone": "",
+        "UseLogFileNameForLogDate": false		
+	}
+    ]
+}

@@ -1,0 +1,2 @@
+https://www.michaelcrump.net/setting-up-github-to-work-with-visual-studio-2013-step-by-step/
+https://developercommunity.visualstudio.com/content/problem/201457/unable-to-connect-to-github-due-to-tls-12-only-cha.html
