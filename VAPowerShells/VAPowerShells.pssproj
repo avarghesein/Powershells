@@ -33,7 +33,9 @@
     <Folder Include="Modules\VA.Script.Utility\" />
     <Folder Include="Modules\VA.Text.Utility\" />
     <Folder Include="Samples\" />
-    <Folder Include="Samples\VA.Text.Utility.Samples\" />
+    <Folder Include="Samples\VA.Web\" />
+    <Folder Include="Samples\VA.Thread\" />
+    <Folder Include="Samples\VA.Text.Utility\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Modules\VA.DateTime.Utility\VA.DateTime.Utility.psm1" />
@@ -41,9 +43,13 @@
     <Compile Include="Modules\VA.Script.Utility\VA.Script.Utility.psm1" />
     <Compile Include="Modules\VA.Text.Utility\LogTypeControlFile.json" />
     <Compile Include="Modules\VA.Text.Utility\VA.Text.Utility.psm1" />
-    <Compile Include="ConnectingToGitHub.txt" />
-    <Compile Include="Samples\VA.Text.Utility.Samples\LogTypeControlFile.json" />
-    <Compile Include="Samples\VA.Text.Utility.Samples\VA.Samples.Test_Filter-TextLog.ps1" />
+    <Compile Include="VSConnectToGitHub.txt" />
+    <Compile Include="Samples\VA.Text.Utility\LogTypeControlFile.json" />
+    <Compile Include="Samples\VA.Text.Utility\VA.Text.Utility.Test_Search-TextLog.ps1" />
+    <Compile Include="Samples\VA.Thread\VA.Thread.Test_RunSpace.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Samples\VA.Web\VA.Web.Test_PostFileToWebAPI.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
