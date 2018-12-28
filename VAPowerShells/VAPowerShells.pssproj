@@ -28,24 +28,28 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
+    <Folder Include="Modules\VA.Registry.Utility\" />
     <Folder Include="Modules\VA.DateTime.Utility\" />
     <Folder Include="Modules\VA.IO.Utility\" />
     <Folder Include="Modules\VA.Script.Utility\" />
     <Folder Include="Modules\VA.Text.Utility\" />
     <Folder Include="Samples\" />
+    <Folder Include="Samples\VA.Registry\" />
     <Folder Include="Samples\VA.Web\" />
     <Folder Include="Samples\VA.Thread\" />
-    <Folder Include="Samples\VA.Text.Utility\" />
+    <Folder Include="Samples\VA.Text\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Modules\VA.DateTime.Utility\VA.DateTime.Utility.psm1" />
     <Compile Include="Modules\VA.IO.Utility\VA.IO.Utility.psm1" />
+    <Compile Include="Modules\VA.Registry.Utility\VA.Registry.Utility.psm1" />
     <Compile Include="Modules\VA.Script.Utility\VA.Script.Utility.psm1" />
     <Compile Include="Modules\VA.Text.Utility\LogTypeControlFile.json" />
     <Compile Include="Modules\VA.Text.Utility\VA.Text.Utility.psm1" />
+    <Compile Include="Samples\VA.Registry\VA.Registry.Test_SearchWrite.ps1" />
     <Compile Include="VSConnectToGitHub.txt" />
-    <Compile Include="Samples\VA.Text.Utility\LogTypeControlFile.json" />
-    <Compile Include="Samples\VA.Text.Utility\VA.Text.Utility.Test_Search-TextLog.ps1" />
+    <Compile Include="Samples\VA.Text\LogTypeControlFile.json" />
+    <Compile Include="Samples\VA.Text\VA.Text.Test_Search-TextLog.ps1" />
     <Compile Include="Samples\VA.Thread\VA.Thread.Test_RunSpace.ps1" />
   </ItemGroup>
   <ItemGroup>
