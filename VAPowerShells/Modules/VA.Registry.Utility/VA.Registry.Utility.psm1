@@ -30,23 +30,50 @@
 
         if($?)
         {
+            [void]($regQueryResults.Foreach("Replace","(`r?`n)*",$empty).ForEach("Trim"))
+
             for($idx = 0; $idx -lt $regQueryResults.Length; ++$idx)
             {
-                $regPathLine = $regQueryResults[$idx].Replace("(`r?`n)*",$empty).Trim()
+                $regPathLine = $regQueryResults[$idx]
 
                 if($regPathLine -eq $empty -or $regPathLine.StartsWith("End Of Search", $true, $null))
                 {
                     continue
                 }
 
-                $regKeyLine = $regQueryResults[++$idx].Trim().Replace("(`r?`n)*",$empty)
+                $valueFound = $false
 
-                $regNameValue = [Regex]::Match($regKeyLine, "(?<NAME>.*)\s+REG_[^\s]*\s*(?<VALUE>.*)").Groups
+                do
+                {
+                    $regKeyLine = $regQueryResults[++$idx]
 
-                [PsCustomObject] @{
-                    "KeyPath" = $regPathLine
-                    "ValueName" = $regNameValue["NAME"]
-                    "Value" = $regNameValue["VALUE"]
+                    $regNameValueMatch = [Regex]::Match($regKeyLine, "(?<NAME>.*)\s+REG_[^\s]*\s*(?<VALUE>.*)")
+
+                    if(!$regNameValueMatch.Success)
+                    {
+                        --$idx
+                        break
+                    }
+
+                    $valueFound = $true
+
+                    $regNameValue = $regNameValueMatch.Groups
+
+                    [PsCustomObject] @{
+                        "KeyPath" = $regPathLine
+                        "ValueName" = $regNameValue["NAME"]
+                        "Value" = $regNameValue["VALUE"]
+                    }
+                }
+                while($idx -lt $regQueryResults.Length)
+
+                if(!$valueFound)
+                {
+                    [PsCustomObject] @{
+                            "KeyPath" = $regPathLine
+                            "ValueName" = $Empty
+                            "Value" = $Empty
+                        }
                 }
             }
         }

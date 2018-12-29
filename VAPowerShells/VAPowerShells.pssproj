@@ -47,6 +47,7 @@
     <Compile Include="Modules\VA.Text.Utility\LogTypeControlFile.json" />
     <Compile Include="Modules\VA.Text.Utility\VA.Text.Utility.psm1" />
     <Compile Include="Samples\VA.Registry\VA.Registry.Test_SearchWrite.ps1" />
+    <Compile Include="Samples\VA.Registry\VA.Registry.Utility.WithCmdLetVersion.ps1" />
     <Compile Include="VSConnectToGitHub.txt" />
     <Compile Include="Samples\VA.Text\LogTypeControlFile.json" />
     <Compile Include="Samples\VA.Text\VA.Text.Test_Search-TextLog.ps1" />
