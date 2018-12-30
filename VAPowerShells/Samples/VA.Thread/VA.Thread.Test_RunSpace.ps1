@@ -24,6 +24,9 @@ $t1.AddScript({ "" + [System.Diagnostics.Process]::GetCurrentProcess().Id + ";" 
 #Synchronous invoke, Wait for the thread to finish (if this is running under a foreign thread)
 $t1res = $t1.invoke()
 
+$t1.AddScript({ Import-Module -Name "VA.Registry.Utility" -Force; Search-Registry -tokenToSearch 'NGen' -tokenType KeyName -pathsToSearch @('HKLM\SOFTWARE\Microsoft') } )
+$t1res = $t1.invoke()
+
 
 #dispose the objects
 $t1.Dispose()
