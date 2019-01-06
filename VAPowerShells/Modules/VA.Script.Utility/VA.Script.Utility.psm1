@@ -3,6 +3,23 @@ Set-Variable -scope Script fileSlash $("\")
 Set-Variable -scope Script empty $([string]::Empty)
 Set-Variable -scope Script newLineChar $([char]10) #\n
 
+Set-Alias ?: IIF -Scope Global -Description "IIF or ?: or Ternary Operator"
+
+filter IIF([scriptblock] $trueBlock, [scriptblock] $elseBlock)
+{
+    if(& $_)
+    {
+        & $trueBlock
+    }
+    else
+    {
+        if($elseBlock -ne $null)
+        {
+            & $elseBlock
+        }
+    }
+}
+
 function IsNullOrEmpty
 {
     param
@@ -19,4 +36,4 @@ function GetScriptPath
     #$((Split-Path -Parent $MyInvocation.MyCommand.Definition) + $pathSeperator)
 }
 
-Export-ModuleMember -Function IsNullOrEmpty, GetScriptPath -Variable fileSlash, empty, newLineChar
+Export-ModuleMember -Function IsNullOrEmpty, GetScriptPath, IIF -Variable fileSlash, empty, newLineChar -Alias ?:
