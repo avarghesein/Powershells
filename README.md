@@ -1,5 +1,5 @@
 # Powershells
-Utility Powershell Modules and Samples
+Powershell Modules and Samples
 
 # General Instructions
 1. Clone the repository (https://github.com/avarghesein/Powershells.git) to your local machine
