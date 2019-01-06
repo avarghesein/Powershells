@@ -7,7 +7,9 @@ Set-Alias ?: IIF -Scope Global -Description "IIF or ?: or Ternary Operator"
 
 filter IIF([scriptblock] $trueBlock, [scriptblock] $elseBlock)
 {
-    if(& $_)
+    $condition = if($_ -is [scriptblock]) { & $_} else { $_ }
+
+    if($condition)
     {
         & $trueBlock
     }
