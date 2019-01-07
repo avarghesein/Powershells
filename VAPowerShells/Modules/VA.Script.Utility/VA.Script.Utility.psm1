@@ -5,19 +5,19 @@ Set-Variable -scope Script newLineChar $([char]10) #\n
 
 Set-Alias ?: IIF -Scope Global -Description "IIF or ?: or Ternary Operator"
 
-filter IIF([scriptblock] $trueBlock, [scriptblock] $elseBlock)
+filter IIF($trueBlock, $elseBlock)
 {
     $condition = if($_ -is [scriptblock]) { & $_} else { $_ }
 
     if($condition)
     {
-        & $trueBlock
+        if($trueBlock -is [scriptblock]) { & $trueBlock } else { $trueBlock }
     }
     else
     {
         if($elseBlock -ne $null)
         {
-            & $elseBlock
+            if($elseBlock -is [scriptblock]) { & $elseBlock } else { $elseBlock }
         }
     }
 }
