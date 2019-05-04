@@ -1,0 +1,25 @@
+[{
+		"SheetMappingID": 1,
+		"SourceSheet": "Sheet1",
+		"SourceStartRow": 1,
+		"TargetSheet": "Sheet1",
+		"TargetStartRow": 1,
+		"TargetSourceColumnMapping": [
+			["A", "A"],
+			["B", "B"],
+			["C", "%Static:Abraham"]
+		]
+	},
+	{
+		"SheetMappingID": 2,
+		"SourceSheet": "Sheet2",
+		"SourceStartRow": 1,
+		"TargetSheet": "Sheet2",
+		"TargetStartRow": 1,
+		"TargetSourceColumnMapping": [
+			["A", "B"],
+			["B", "A"],
+            ["C", "%Dynamic:GetParentFolder"]
+		]
+	}
+]
