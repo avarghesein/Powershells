@@ -1,0 +1,42 @@
+{
+	"SourceFileTypes": "*.xlsx",
+	"SourceFolder": "Workbooks\\Input",
+
+	"TargetTemplateFile": "Workbooks\\Template.xlsx",
+	"TargetFolder": "Workbooks\\Target",
+	"TargetFileName": "final.xlsx",
+
+	"CustomizationScript": "ProcessWorkBookVariableTemplates.ps1",
+
+	"WorkBookMapping": [{
+			"SheetMappingID": 1,
+			"SourceSheet": "Sheet1",
+			"SourceStartRow": 1,
+			"TargetSheet": "Sheet1",
+			"TargetStartRow": 1,
+			"TargetSourceColumnMapping": [
+                ["A", "%Dynamic:GetFileName"],
+				["B", "A"],
+				["C", "B"]
+			],
+			"RangeCopy": 1,
+			"CopyValues": 1,
+            "SourceColumnToCountRows": "A"
+		},
+		{
+			"SheetMappingID": 2,
+			"SourceSheet": "Sheet2",
+			"SourceStartRow": 1,
+			"TargetSheet": "Sheet2",
+			"TargetStartRow": 1,
+			"TargetSourceColumnMapping": [
+                ["A", "%Dynamic:GetFileName"],
+				["B", "A"],
+				["C", "B"]
+			],
+			"RangeCopy": 1,
+			"CopyValues": 1,
+            "SourceColumnToCountRows": "C"
+		}
+	]
+}

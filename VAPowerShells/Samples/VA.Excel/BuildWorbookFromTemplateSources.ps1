@@ -1,87 +1,251 @@
 ﻿
 param(
-[string]$mappingFile = "$PSScriptRoot\WorkbookTemplateMapping.json",
-[string]$sourceFolder = "$PSScriptRoot\Test\SRC",
-[string]$templateFile = "$PSScriptRoot\Test\Template.xlsx",
-[string]$targetFolder = "$PSScriptRoot\Test\"
+[string]$mappingFile = "ConsolidationSample\WorkbookTemplateMapping.json"
 )
+
+function DoesComesFirst([string]$first, [string]$second)
+{
+    if($first.Length -lt $second.Length) { return $true }
+    if($first.Length -gt $second.Length) { return $false }
+    
+    $length = $first.Length
+    $index = 0
+
+    while($index -lt $length)
+    {
+        $firstChar = $first[$index]
+        $secondChar = $second[$index]
+
+        if($firstChar -eq $secondChar) { ++$index; continue }
+
+        if($firstChar -lt $secondChar)
+        {
+            return $true
+        }
+        else
+        {
+            return $false
+        }       
+    }
+
+}
+
+function IsAbsolutePath([string] $path)
+{
+    return [System.IO.Path]::IsPathRooted($path);
+}
 
 $stopWatch = New-Object System.Diagnostics.Stopwatch
 $stopWatch.Start()
 
 CLS
 
-. "$PSScriptRoot\ProcessWorkBookVariableTemplates.ps1"
+if(!(IsAbsolutePath $mappingFile))
+{
+    $rootFolder = $(split-path -parent $MyInvocation.MyCommand.Definition) + "\"
+    $mappingFile = $rootFolder + $mappingFile
+}
 
-$templateMap = Get-Content $mappingFile | ConvertFrom-Json 
-$totalSheetCount = $sheetTemplateMap.TargetSourceColumnMapping.Count
+$rootFolder = $(split-path -parent $mappingFile) + "\"
+
+$mappingControl = Get-Content $mappingFile -Raw | ConvertFrom-Json 
+
+[string]$sourceFolder = $mappingControl.SourceFolder
+[string]$templateFile = $mappingControl.TargetTemplateFile
+[string]$targetFolder = $mappingControl.TargetFolder
+[string]$customScript = $mappingControl.CustomizationScript
+
+if(!(IsAbsolutePath $sourceFolder)) { $sourceFolder = $rootFolder + $sourceFolder }
+if(!(IsAbsolutePath $templateFile)) { $templateFile = $rootFolder + $templateFile }
+if(!(IsAbsolutePath $targetFolder)) { $targetFolder = $rootFolder + $targetFolder }
+if(!(IsAbsolutePath $customScript)) { $customScript = $rootFolder + $customScript }
+
+. "$customScript"
+
+$templateMap = $mappingControl.WorkBookMapping
+$totalSheetCount = $templateMap.Count
 
 $excelApp = New-Object -ComObject "Excel.Application"
 $excelApp.Visible = $true
+$excelApp.AskToUpdateLinks  = $false 
+$excelApp.DisplayAlerts = $false 
 
-$targetFile = "$targetFolder\output.xlsx"
+
+$targetFile = "$targetFolder\$($mappingControl.TargetFileName)"
 CP $templateFile $targetFile
 
 $tarBook = $excelApp.Workbooks.Open($targetFile)
 
 $tarStartIndexes = @{}
 
-$totalSrcFiles = (GCI $sourceFolder -Filter *.xlsx -Depth 0).Count
+$totalSrcFiles = (GCI $sourceFolder -Filter $mappingControl.SourceFileTypes -Recurse).Count
 $processedCount = 0
 
-GCI $sourceFolder -Filter *.xlsx -Depth 0 |
+Write-Progress -Activity "Merging Workbook" -Status "Starting" -PercentComplete 0 -CurrentOperation "Complete 0%"
+
+GCI $sourceFolder -Filter $mappingControl.SourceFileTypes -Recurse |
 %{    
     $srcBookName = $_.FullName
-    $srcBook = $excelApp.Workbooks.Open($srcBookName) 
-    $processedSheetCount = 0
+
+    $excelApp.AskToUpdateLinks  = $false 
+    $excelApp.DisplayAlerts = $false 
+    $srcBook = $excelApp.Workbooks.Open($srcBookName,$false) 
+
+    $processedSheetCount = 0  
+
+    Write-Progress -Id 2 -Activity "Merging Sheet" -Status "Starting" -PercentComplete 0 -CurrentOperation "Complete 0%"  
 
     $templateMap |
     %{
         $sheetTemplateMap = $_
 
-        $srcSheetName = $sheetTemplateMap.SourceSheet        
+        $srcSheetName = $sheetTemplateMap.SourceSheet       
+       
         $srcStartIndex = $sheetTemplateMap.SourceStartRow  
         $srcSheet = $srcBook.Worksheets.Item($srcSheetName) 
 
+        if($srcSheet.AutoFilterMode)
+        {
+            $srcSheet.AutoFilterMode = $false
+        }
+
         $tarSheetName = $sheetTemplateMap.TargetSheet        
         $tarStartIndex = $sheetTemplateMap.TargetStartRow 
-        $tarSheet = $tarBook.Worksheets.Item($tarSheetName)       
+        $tarSheet = $tarBook.Worksheets.Item($tarSheetName)    
+        
+        $rangeCopy = $sheetTemplateMap.RangeCopy
+        $copyValues = $sheetTemplateMap.CopyValues
+        $srcColToCountRows = $sheetTemplateMap.SourceColumnToCountRows
 
         if(!$tarStartIndexes.ContainsKey($tarSheetName))
         {
             $tarStartIndexes.Add($tarSheetName,$tarStartIndex)
         }
 
+        $srcFinalRowIndex = 0
         $tarFinalRowIndex = 0
         $tarStartRowIndex = $tarStartIndexes[$tarSheetName]
 
+        $processedColumnCount = 0
+        $totalColumnCount = $sheetTemplateMap.TargetSourceColumnMapping.Count
+        Write-Progress -Id 3 -Activity "Merging Column" -Status "Starting" -PercentComplete 0 -CurrentOperation "Complete 0%"
+
+        #$srcSheet.activate()
+        #$rowCount = $srcSheet.UsedRange.SpecialCells(11).Row
+
+        $isRowCounted = $false
+
+        if($srcColToCountRows -ne "")
+        {
+            $isRowCounted = $true
+            $srcSheet.activate()
+            $rowCount = [long]::Parse($excelApp.Evaluate("=COUNTA($($srcColToCountRows)$srcStartIndex : $($srcColToCountRows)65535)"))
+            $rowCount += $srcStartIndex - 1
+        }       
+
+        $directMappedRows = 0
+
+        $srcStartCol = "X" * 5
+        $srcEndCol = "A"
+        $tarStartCol = "X" * 5
+        $tarEndCol = "A"
+
         $sheetTemplateMap.TargetSourceColumnMapping | ? { !$_[1].Contains("%") } | 
         %{
+            ++$directMappedRows
+
             $srcCol = $_[1]
             $tarCol = $_[0]
             
-            $srcSheet.activate()
-            $rowCount = [long]::Parse($excelApp.Evaluate("=ROW(OFFSET(${srcCol}1,COUNTA(${srcCol}:${srcCol})-1,0))"))             
-            $tarEndRowIndex = $tarStartRowIndex + $rowCount - 1
+            if(!$isRowCounted)
+            {
+                $srcSheet.activate()
+                $rowCount = [long]::Parse($excelApp.Evaluate("=ROW(OFFSET(${srcCol}1,COUNTA(${srcCol}:${srcCol})-1,0))"))
+            }       
+
+            $tarEndRowIndex = $tarStartRowIndex + ($rowCount - $srcStartIndex + 1) - 1
 
             if($tarEndRowIndex -gt $tarFinalRowIndex)
             {
                 $tarFinalRowIndex = $tarEndRowIndex
             }
 
-            if($rowCount -gt 0)
+            if($rangeCopy -eq 0)
+            {
+                if($rowCount -gt 0 -and $rowCount -ge $srcStartIndex -and $tarEndRowIndex -ge $tarStartRowIndex)
+                {
+                    $srcSheet.activate()            
+                    $srcRng = $srcSheet.Range("${srcCol}$srcStartIndex : ${srcCol}$rowCount")
+                    $srcRng.copy()            
+            
+                    $tarSheet.activate()
+                    $tarRng = $tarSheet.Range("${tarCol}$tarStartRowIndex : ${tarCol}$tarEndRowIndex")
+
+                    if($copyValues -eq 0)
+                    {
+                        $tarSheet.Paste($tarRng)                        
+                    }
+                    else
+                    {
+                        $tarRng.pastespecial(-4163)
+                    }
+                }
+
+                $completeColumnPercent = $(++$processedColumnCount * 100/$totalColumnCount)
+                Write-Progress -Id 3 -Activity "Merging Column" -Status $srcCol -PercentComplete $completeColumnPercent -CurrentOperation "Complete $completeColumnPercent%"
+            } 
+            else
+            {
+                if($rowCount -gt $srcFinalRowIndex)
+                {
+                    $srcFinalRowIndex = $rowCount
+                }
+
+                if(DoesComesFirst $srcCol $srcStartCol)
+                {
+                    $srcStartCol = $srcCol
+                }
+
+                if(!(DoesComesFirst $srcCol $srcEndCol))
+                {
+                    $srcEndCol = $srcCol
+                }
+              
+                if(DoesComesFirst $tarCol $tarStartCol)
+                {
+                    $tarStartCol = $tarCol
+                }
+
+                if(!(DoesComesFirst $tarCol $tarEndCol))
+                {
+                    $tarEndCol = $tarCol
+                }  
+            }           
+        }
+
+        if($rangeCopy -ne 0)
+        {
+            if($srcFinalRowIndex -gt 0 -and $srcFinalRowIndex -ge $srcStartIndex -and $tarFinalRowIndex -gt $tarStartRowIndex)
             {
                 $srcSheet.activate()            
-                $srcRng = $srcSheet.Range("${srcCol}$srcStartIndex : ${srcCol}$rowCount")
+                $srcRng = $srcSheet.Range("${srcStartCol}$srcStartIndex : ${srcEndCol}$srcFinalRowIndex")
                 $srcRng.copy()            
             
                 $tarSheet.activate()
-                $tarRng = $tarSheet.Range("${tarCol}$tarStartRowIndex : ${tarCol}$tarEndRowIndex")
-                $tarSheet.Paste($tarRng)
+                $tarRng = $tarSheet.Range("${tarStartCol}$tarStartRowIndex : ${tarEndCol}$tarFinalRowIndex")
+                
+                if($copyValues -eq 0)
+                {
+                    $tarSheet.Paste($tarRng)                        
+                }
+                else
+                {
+                    $tarRng.pastespecial(-4163)
+                }
             }
 
-            $completePercent = $(++$processedSheetCount/$totalSheetCount)
-            Write-Progress -Id 2 -Activity "Merging Sheet" -Status $srcSheetName -PercentComplete $completePercent -CurrentOperation "Complete $completePercent%"
+            $completeColumnPercent = $($directMappedRows * 100/$totalColumnCount)
+            Write-Progress -Id 3 -Activity "Merging Column" -Status $srcCol -PercentComplete $completeColumnPercent -CurrentOperation "Complete $completeColumnPercent%"
         }
 
         $sheetTemplateMap.TargetSourceColumnMapping | ? { $_[1].Contains("%") } | 
@@ -106,23 +270,30 @@ GCI $sourceFolder -Filter *.xlsx -Depth 0 |
                 }  
             }
 
-            if($tarFinalRowIndex -gt 0)
+            if($tarFinalRowIndex -gt 0 -and $tarFinalRowIndex -ge $tarStartRowIndex)
             {
                 $tarSheet.activate()
-                $tarSheet.Range("${tarCol}$tarStartRowIndex : ${tarCol}$tarFinalRowIndex").Value = $value
-            }
-
-            $completePercent = $(++$processedSheetCount/$totalSheetCount)
-            Write-Progress -Id 2 -Activity "Merging Sheet" -Status $srcSheetName -PercentComplete $completePercent -CurrentOperation "Complete $completePercent%"
+                $tarSheet.Range("${tarCol}$tarStartRowIndex : ${tarCol}$tarFinalRowIndex").Value2 = $value
+            }     
+            
+            $completeColumnPercent = $(++$processedColumnCount * 100/$totalColumnCount)
+            Write-Progress -Id 3 -Activity "Merging Column" -Status $srcCol -PercentComplete $completeColumnPercent -CurrentOperation "Complete $completeColumnPercent%"       
         }
 
         $tarBook.Save() 
-        $tarStartIndexes[$tarSheetName] = $tarFinalRowIndex + 1
+
+        if($tarFinalRowIndex -gt 0 -and $tarFinalRowIndex -ge $tarStartRowInde)
+        {        
+            $tarStartIndexes[$tarSheetName] = $tarFinalRowIndex + 1
+        }
+
+        $completeSheetPercent = $(++$processedSheetCount * 100/$totalSheetCount)
+        Write-Progress -Id 2 -Activity "Merging Sheet" -Status $srcSheetName -PercentComplete $completeSheetPercent -CurrentOperation "Complete $completeSheetPercent%"
     }
 
     $srcBook.Close($false)
 
-    $completePercent = $(++$processedCount/$totalSrcFiles)
+    $completePercent = $(++$processedCount * 100/$totalSrcFiles)
     Write-Progress -Activity "Merging Workbook" -Status $_.Name -PercentComplete $completePercent -CurrentOperation "Complete $completePercent%"
 }
 
