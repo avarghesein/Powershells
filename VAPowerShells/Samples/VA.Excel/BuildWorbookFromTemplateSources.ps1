@@ -225,7 +225,7 @@ GCI $sourceFolder -Filter $mappingControl.SourceFileTypes -Recurse |
 
         if($rangeCopy -ne 0)
         {
-            if($srcFinalRowIndex -gt 0 -and $srcFinalRowIndex -ge $srcStartIndex -and $tarFinalRowIndex -gt $tarStartRowIndex)
+            if($srcFinalRowIndex -gt 0 -and $srcFinalRowIndex -ge $srcStartIndex -and $tarFinalRowIndex -ge $tarStartRowIndex)
             {
                 $srcSheet.activate()            
                 $srcRng = $srcSheet.Range("${srcStartCol}$srcStartIndex : ${srcEndCol}$srcFinalRowIndex")
