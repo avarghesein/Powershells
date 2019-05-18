@@ -141,8 +141,17 @@ GCI $sourceFolder -Filter $mappingControl.SourceFileTypes -Recurse |
             $srcSheet.activate()
             #$rowCount = [long]::Parse($excelApp.Evaluate("=COUNTA($($srcColToCountRows)$srcStartIndex : $($srcColToCountRows)65535)"))
             #$rowCount += $srcStartIndex - 1
+            
             $srcColRange = "$($srcColToCountRows)$srcStartIndex : $($srcColToCountRows)65535"
-            $rowCount = [long]::Parse($excelApp.Evaluate("=SUMPRODUCT(MAX(( $srcColRange <> `"`")*(ROW( $srcColRange ))))"))  
+            #SUMPRODUCT is just a place holder to treat the formula as Array formula, as we  cannot mimick CTRL+SHFT+ENTR press,
+            #in an excel cell, to make a formula as an array formula, by placing it inside {}.
+            #SUMPRODUCT is the only array formula which does not requires,
+            #CTRL+SHFT+ENTR and the formula will be treat as array formula without {}, in an excel cell 
+            #$rowCount = [long]::Parse($excelApp.Evaluate("=SUMPRODUCT(MAX(( $srcColRange <> `"`")*(ROW( $srcColRange ))))"))  
+            
+            #Above fix not required, as VBA will always consider the formula as Array Formula,
+            #hence the SUMPRODUCT place holder not required.      
+            $rowCount = [long]::Parse($excelApp.Evaluate("=MAX(( $srcColRange <> `"`")*(ROW( $srcColRange )))"))            
         }       
 
         $directMappedRows = 0
@@ -161,10 +170,19 @@ GCI $sourceFolder -Filter $mappingControl.SourceFileTypes -Recurse |
             
             if(!$isRowCounted)
             {
-                $srcSheet.activate()
+                $srcSheet.activate()                
                 #$rowCount = [long]::Parse($excelApp.Evaluate("=ROW(OFFSET(${srcCol}1,COUNTA(${srcCol}:${srcCol})-1,0))"))
-                $srcColRange = "$srcCol : $srcCol"
-                $rowCount = [long]::Parse($excelApp.Evaluate("=SUMPRODUCT(MAX(( $srcColRange <> `"`")*(ROW( $srcColRange ))))"))
+                
+                $srcColRange = "$srcCol : $srcCol"                
+                #SUMPRODUCT is just a place holder to treat the formula as Array formula, as we  cannot mimick CTRL+SHFT+ENTR press,
+                #in an excel cell, to make a formula as an array formula, by placing it inside {}.
+                #SUMPRODUCT is the only array formula which does not requires,
+                #CTRL+SHFT+ENTR and the formula will be treat as array formula without {}, in an excel cell 
+                #$rowCount = [long]::Parse($excelApp.Evaluate("=SUMPRODUCT(MAX(( $srcColRange <> `"`")*(ROW( $srcColRange ))))"))
+                
+                #Above fix not required, as VBA will always consider the formula as Array Formula,
+                #hence the SUMPRODUCT place holder not required.                
+                $rowCount = [long]::Parse($excelApp.Evaluate("=MAX(( $srcColRange <> `"`")*(ROW( $srcColRange )))"))
             }       
 
             $tarEndRowIndex = $tarStartRowIndex + ($rowCount - $srcStartIndex + 1) - 1
