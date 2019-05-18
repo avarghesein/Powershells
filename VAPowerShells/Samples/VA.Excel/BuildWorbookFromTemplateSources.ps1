@@ -139,8 +139,10 @@ GCI $sourceFolder -Filter $mappingControl.SourceFileTypes -Recurse |
         {
             $isRowCounted = $true
             $srcSheet.activate()
-            $rowCount = [long]::Parse($excelApp.Evaluate("=COUNTA($($srcColToCountRows)$srcStartIndex : $($srcColToCountRows)65535)"))
-            $rowCount += $srcStartIndex - 1
+            #$rowCount = [long]::Parse($excelApp.Evaluate("=COUNTA($($srcColToCountRows)$srcStartIndex : $($srcColToCountRows)65535)"))
+            #$rowCount += $srcStartIndex - 1
+            $srcColRange = "$($srcColToCountRows)$srcStartIndex : $($srcColToCountRows)65535"
+            $rowCount = [long]::Parse($excelApp.Evaluate("=SUMPRODUCT(MAX(( $srcColRange <> `"`")*(ROW( $srcColRange ))))"))  
         }       
 
         $directMappedRows = 0
@@ -160,7 +162,9 @@ GCI $sourceFolder -Filter $mappingControl.SourceFileTypes -Recurse |
             if(!$isRowCounted)
             {
                 $srcSheet.activate()
-                $rowCount = [long]::Parse($excelApp.Evaluate("=ROW(OFFSET(${srcCol}1,COUNTA(${srcCol}:${srcCol})-1,0))"))
+                #$rowCount = [long]::Parse($excelApp.Evaluate("=ROW(OFFSET(${srcCol}1,COUNTA(${srcCol}:${srcCol})-1,0))"))
+                $srcColRange = "$srcCol : $srcCol"
+                $rowCount = [long]::Parse($excelApp.Evaluate("=SUMPRODUCT(MAX(( $srcColRange <> `"`")*(ROW( $srcColRange ))))"))
             }       
 
             $tarEndRowIndex = $tarStartRowIndex + ($rowCount - $srcStartIndex + 1) - 1
