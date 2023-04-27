@@ -20,7 +20,7 @@ public class ExcelUtils2
 
     public static DataTable ConvertExcelToDataTable(string FileName)  
     {  
-    string logfile="C:\\Users\\331905\\Downloads\\file.txt";
+    string logfile="<Path>\\file.txt";
     File.AppendAllText(logfile, "Starting" + Environment.NewLine);
 
     DataTable dtResult = null;  
@@ -103,12 +103,12 @@ public class ExcelUtils2
 "@
 
 CLS
-$assembly = Add-Type -TypeDefinition $source -ReferencedAssemblies ("System.Data", "System.Xml","System.Data.DataSetExtensions") -OutputAssembly "C:\Users\331905\Downloads\test2.dll" -PassThru
+$assembly = Add-Type -TypeDefinition $source -ReferencedAssemblies ("System.Data", "System.Xml","System.Data.DataSetExtensions") -OutputAssembly "<Path>\test2.dll" -PassThru
 
-$table = $assembly::ConvertExcelToDataTable("C:\Users\331905\Downloads\test.xlsx")
+$table = $assembly::ConvertExcelToDataTable("<Path>\test.xlsx")
 $table.DefaultView.RowFilter="Marks >= 2"
 $table = $table.DefaultView.ToTable()
-$assembly::Write($table,"C:\Users\331905\Downloads\table.txt")
+$assembly::Write($table,"<Path>\table.txt")
 }
 
 Wait-Job $job
