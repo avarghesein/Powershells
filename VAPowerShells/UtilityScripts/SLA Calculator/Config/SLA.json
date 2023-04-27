@@ -1,0 +1,28 @@
+{
+    "StartTime" : "7:30:00 AM",
+    "StopTime" : "5:30:00 PM",
+
+    "Incident - P1 Response": "15|M|F",
+    "Incident - P2 Response": "60|M",
+    "Incident - P3 Response": "1|D",
+    "Incident - P4 Response": "2|D",
+    "Incident - P5 Response": "5|D",
+
+    "Incident - P1 Resolution": "4|H|F",
+    "Incident - P2 Resolution": "1|D",
+    "Incident - P3 Resolution": "3|D",
+    "Incident - P4 Resolution": "7|D",
+    "Incident - P5 Resolution": "30|D",
+
+    "Request - P1 Response": "1|H|F",
+    "Request - P2 Response": "4|H",
+    "Request - P3 Response": "1|D",
+    "Request - P4 Response": "2|D",
+    "Request - P5 Response": "5|D",
+
+    "Request - P1 Resolution": "1|D",
+    "Request - P2 Resolution": "2|D",
+    "Request - P3 Resolution": "5|D",
+    "Request - P4 Resolution": "10|D",
+    "Request - P5 Resolution": "30|D"
+}

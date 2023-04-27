@@ -1,0 +1,16 @@
+{
+	"CalculatorScriptPath": "SLABreachCalculator.ps1",
+	"SLAConfigPath": "SLA.json",
+	"HolidayConfigPath": "Holiday.json",
+
+    "SourceFile": "..\\Data\\SLA_DATA.xlsx",
+    "SheetName": "All data",
+	"TargetFile": "..\\Data\\SLA_DATA.OUT.xlsx",
+	"SLATypeColumn": "B",
+	"StartTimeColumn": "S",
+	"StartTimeFormatColumn": "yyyy-MM-dd HH:mm:ss",
+	"StopTimeColumn": "T",
+	"PauseDurationColumn": "Q",
+	"Out_BreachDateColumn": "U",
+	"Out_IsBreachedColumn": "V"
+}
