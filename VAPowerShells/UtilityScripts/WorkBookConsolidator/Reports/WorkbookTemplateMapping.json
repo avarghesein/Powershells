@@ -1,0 +1,44 @@
+{
+	"SourceFileTypes": "*.xlsx",
+	"SourceFolder": "DATA\\SRC",
+
+	"TargetTemplateFile": "DATA\\ReportTemplate.xlsx",
+	"TargetFolder": "DATA\\Output",
+	"TargetFileName": "output.xlsx",
+
+	"CustomizationScript": "ProcessWorkBookVariableTemplates.ps1",
+
+	"WorkBookMapping": [{
+			"SheetMappingID": 1,
+			"SourceSheet": "Segment1",
+			"SourceStartRow": 2,
+			"TargetSheet": "AllSegment1",
+			"TargetStartRow": 2,
+			"TargetSourceColumnMapping": [
+				["A", "%Dynamic:GetSegment"],
+				["B", "%Dynamic:GetAccount"],
+				["C", "A"],
+				["D", "B"]
+			],
+			"RangeCopy": 1,
+			"CopyValues": 1,
+			"SourceColumnToCountRows": "A"
+		},
+		{
+			"SheetMappingID": 2,
+			"SourceSheet": "Segment2",
+			"SourceStartRow": 2,
+			"TargetSheet": "AllSegment2",
+			"TargetStartRow": 2,
+			"TargetSourceColumnMapping": [
+				["A", "%Dynamic:GetSegment"],
+				["B", "%Dynamic:GetAccount"],
+				["C", "A"],
+				["D", "B"]
+			],
+			"RangeCopy": 1,
+			"CopyValues": 1,
+			"SourceColumnToCountRows": "B"
+		}
+	]
+}
