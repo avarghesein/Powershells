@@ -1,5 +1,6 @@
-Consolidates Multipler Workbooks to a Single One.
+Consolidates Multiple Workbooks to a Single One.
 Scan through all sheets based on pre defined mappings and merges rows:
+(Requires Microsoft Excel To Be Available In The System)
 
 1.SetPowershell Policy
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
