@@ -7,6 +7,8 @@
 #While keeping the date and time visible,
 #as a workaround for the non-resizable taskbar in Windows 11.
 
+#Update V2: Optimize CPU Usage
+
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -33,18 +35,33 @@ $form.Controls.Add($label)
 function Update-Time {
     $global:label.Text = (Get-Date).ToString("dd/M h:mm")
     $global:form.ClientSize = $global:label.PreferredSize
-    $global:form.Width -= 4
+    $global:form.Width -= 5
     $global:form.Height -= 6
     $global:form.TopMost = $true
+    #$global:form.Refresh()
+    $global:form.Invalidate()  # Marks the form as needing a repaint
+    $global:form.Update()      # Forces the repaint immediately
 }
 
 # Define the second timer outside for proper garbage collection
 $secondTimer = New-Object Windows.Forms.Timer
 $secondTimer.Interval = 60000  # 60 seconds (1 minute)
+$secondTimer.Interval = 2 #---V2 Code
 $secondTimer.Add_Tick({
-    Update-Time
-    $secondsRemaining = 60 - (Get-Date).Second
-    $secondTimer.Interval = $secondsRemaining
+    #For efficient CPU usage, V2 implementation optimizes CPU utilization from approximately 2% to 0.14% on an average.
+    #----V2 Code
+    $secondTimer.Stop()
+    # Infinite loop that sleeps until the next minute and updates the time
+    while ($true) {
+        Update-Time  # Update the time at the start of each minute
+        $secondsRemaining = 60 - (Get-Date).Second
+        Start-Sleep -Seconds $secondsRemaining  # Sleep until the next full minute        
+    }
+
+    #----V1 Code
+    #Update-Time
+    #$secondsRemaining = 60 - (Get-Date).Second
+    #$secondTimer.Interval = $secondsRemaining
 })
 
 # Initial Timer logic: wait for the next full minute
